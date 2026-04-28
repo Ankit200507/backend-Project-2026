@@ -33,11 +33,14 @@ export default function RegisterPropertyPage() {
     ownerFirstName: '',
     ownerLastName: '',
     ownerEmail: '',
+    ownerAadhar: '',
     latitude: '',
     longitude: '',
   });
 
   const [geometry, setGeometry] = useState<number[][][] | null>(null);
+  const [searchingUser, setSearchingUser] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const handlePolygonDrawn = useCallback((coords: number[][][], area?: number) => {
     setGeometry(coords);
@@ -61,6 +64,33 @@ export default function RegisterPropertyPage() {
       }));
     }
   }, []);
+
+  const searchUserByAadhar = async () => {
+    if (!form.ownerAadhar || form.ownerAadhar.length !== 12) {
+      setSearchError('Please enter a 12-digit Aadhar number');
+      return;
+    }
+    setSearchingUser(true);
+    setSearchError(null);
+    try {
+      const res = await fetch(`/api/users/search?aadharNumber=${form.ownerAadhar}`);
+      const data = await res.json();
+      if (data.success) {
+        setForm(prev => ({
+          ...prev,
+          ownerFirstName: data.data.firstName,
+          ownerLastName: data.data.lastName || '',
+          ownerEmail: data.data.email,
+        }));
+      } else {
+        setSearchError(data.error);
+      }
+    } catch (err) {
+      setSearchError('Failed to search user');
+    } finally {
+      setSearchingUser(false);
+    }
+  };
 
   if (!isAdmin) {
     return (
@@ -167,8 +197,26 @@ export default function RegisterPropertyPage() {
               </select>
             </div>
 
+            <div style={{ gridColumn: '1 / -1' }} className="form-group">
+              <label className="form-label">Search Owner by Aadhar</label>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <input 
+                  className="form-input" 
+                  style={{ flex: 1 }}
+                  placeholder="12-digit Aadhar Number"
+                  value={form.ownerAadhar} 
+                  onChange={(e) => updateField('ownerAadhar', e.target.value)} 
+                />
+                <button type="button" className="btn btn-secondary" onClick={searchUserByAadhar} disabled={searchingUser}>
+                  {searchingUser ? 'Searching...' : 'Search'}
+                </button>
+              </div>
+              {searchError && <p style={{ color: 'var(--accent-red)', fontSize: '0.875rem', marginTop: 4 }}>{searchError}</p>}
+            </div>
+
             <Field label="Registry number" value={form.registryNumber} onChange={(value) => updateField('registryNumber', value)} />
             <Field label="Survey number" value={form.surveyNumber} onChange={(value) => updateField('surveyNumber', value)} />
+
             <Field label="Owner first name" value={form.ownerFirstName} onChange={(value) => updateField('ownerFirstName', value)} />
             <Field label="Owner last name" value={form.ownerLastName} onChange={(value) => updateField('ownerLastName', value)} />
             <div style={{ gridColumn: '1 / -1' }}>

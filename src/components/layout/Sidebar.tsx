@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Map, FileText, Plus, Building2, Shield, ChevronLeft, ChevronRight, Home } from 'lucide-react';
+import { LayoutDashboard, Map, FileText, Plus, Building2, Shield, ChevronLeft, ChevronRight, Home, Users, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -14,12 +14,15 @@ const adminLinks = [
   { href: '/map', label: 'Map Explorer', icon: Map },
   { href: '/properties', label: 'All Properties', icon: FileText },
   { href: '/register-property', label: 'Register Property', icon: Plus },
+  { href: '/profile', label: 'My Profile', icon: User },
 ];
 
 const userLinks = [
   { href: '/my-properties', label: 'My Properties', icon: Building2 },
+  { href: '/family-info', label: 'Family & Nominees', icon: Users },
   { href: '/map', label: 'Map Explorer', icon: Map },
   { href: '/properties', label: 'Browse Properties', icon: FileText },
+  { href: '/profile', label: 'My Profile', icon: User },
 ];
 
 interface SidebarProps {

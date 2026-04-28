@@ -10,6 +10,11 @@ export interface IUser extends Document {
   address?: string;
   aadharNumber?: string; // 12-digit Aadhar number
   profileImage?: string;
+  accountType: 'individual' | 'organization';
+  nominees: Array<{
+    user: mongoose.Types.ObjectId;
+    relationship: string;
+  }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,7 +40,7 @@ const UserSchema = new Schema<IUser>(
     },
     lastName: {
       type: String,
-      required: [true, 'Last name is required'],
+      required: false,
     },
     role: {
       type: String,
@@ -51,10 +56,32 @@ const UserSchema = new Schema<IUser>(
     },
     address: String,
     profileImage: String,
+    accountType: {
+      type: String,
+      enum: ['individual', 'organization'],
+      default: 'individual',
+    },
+    nominees: [
+      {
+        user: {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+          required: true,
+        },
+        relationship: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
 
-export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
+
+export default mongoose.model<IUser>('User', UserSchema);

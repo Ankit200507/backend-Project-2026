@@ -14,6 +14,10 @@ export default function SignupPage() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [accountType, setAccountType] = useState<'individual' | 'organization'>('individual');
+  const [aadharNumber, setAadharNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +26,7 @@ export default function SignupPage() {
     try {
       setSubmitting(true);
       setError(null);
-      await signup({ firstName, lastName, email, password });
+      await signup({ firstName, lastName, email, password, accountType, aadharNumber, phoneNumber, address });
       const query = typeof window === 'undefined' ? '' : window.location.search;
       const nextPath = new URLSearchParams(query).get('next') || '/my-properties';
       router.push(nextPath);
@@ -57,29 +61,81 @@ export default function SignupPage() {
         </div>
 
         <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold tracking-wide text-gray-400 uppercase">Account Type</label>
+            <select
+              className="bg-[#0f1115] border border-white/10 focus:border-green-400 focus:ring-1 focus:ring-green-400 rounded-xl px-4 py-3 text-white transition-all outline-none"
+              value={accountType}
+              onChange={(e) => setAccountType(e.target.value as any)}
+            >
+              <option value="individual">Individual</option>
+              <option value="organization">Organization / Non-Profit</option>
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold tracking-wide text-gray-400 uppercase">First Name</label>
+              <label className="text-sm font-semibold tracking-wide text-gray-400 uppercase">
+                {accountType === 'organization' ? 'Organization Name' : 'First Name'}
+              </label>
               <input
                 className="bg-white/5 border border-white/10 focus:border-green-400 focus:ring-1 focus:ring-green-400 rounded-xl px-4 py-3 text-white placeholder-gray-500 transition-all outline-none"
                 type="text"
                 required
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
-                placeholder="John"
+                placeholder={accountType === 'organization' ? 'Acme Corp' : 'John'}
               />
             </div>
+            {accountType === 'individual' && (
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold tracking-wide text-gray-400 uppercase">Last Name</label>
+                <input
+                  className="bg-white/5 border border-white/10 focus:border-green-400 focus:ring-1 focus:ring-green-400 rounded-xl px-4 py-3 text-white placeholder-gray-500 transition-all outline-none"
+                  type="text"
+                  required
+                  value={lastName}
+                  onChange={(event) => setLastName(event.target.value)}
+                  placeholder="Doe"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold tracking-wide text-gray-400 uppercase">Last Name</label>
+              <label className="text-sm font-semibold tracking-wide text-gray-400 uppercase">Aadhar Number</label>
               <input
                 className="bg-white/5 border border-white/10 focus:border-green-400 focus:ring-1 focus:ring-green-400 rounded-xl px-4 py-3 text-white placeholder-gray-500 transition-all outline-none"
                 type="text"
-                required
-                value={lastName}
-                onChange={(event) => setLastName(event.target.value)}
-                placeholder="Doe"
+                pattern="\d{12}"
+                title="12 digit Aadhar number"
+                value={aadharNumber}
+                onChange={(event) => setAadharNumber(event.target.value)}
+                placeholder="123456789012"
               />
             </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold tracking-wide text-gray-400 uppercase">Mobile Number</label>
+              <input
+                className="bg-white/5 border border-white/10 focus:border-green-400 focus:ring-1 focus:ring-green-400 rounded-xl px-4 py-3 text-white placeholder-gray-500 transition-all outline-none"
+                type="tel"
+                value={phoneNumber}
+                onChange={(event) => setPhoneNumber(event.target.value)}
+                placeholder="+91 9876543210"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold tracking-wide text-gray-400 uppercase">Residence Info</label>
+            <textarea
+              className="bg-white/5 border border-white/10 focus:border-green-400 focus:ring-1 focus:ring-green-400 rounded-xl px-4 py-3 text-white placeholder-gray-500 transition-all outline-none resize-none"
+              rows={2}
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              placeholder="123 Main St, City, Country"
+            />
           </div>
 
           <div className="flex flex-col gap-2">

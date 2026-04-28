@@ -13,10 +13,14 @@ export async function POST(request: NextRequest) {
     const password = String(body.password ?? '');
     const firstName = String(body.firstName ?? '').trim();
     const lastName = String(body.lastName ?? '').trim();
+    const aadharNumber = body.aadharNumber ? String(body.aadharNumber).trim() : undefined;
+    const phoneNumber = body.phoneNumber ? String(body.phoneNumber).trim() : undefined;
+    const address = body.address ? String(body.address).trim() : undefined;
+    const accountType = body.accountType === 'organization' ? 'organization' : 'individual';
 
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password || !firstName) {
       return NextResponse.json(
-        { success: false, error: 'All fields are required' },
+        { success: false, error: 'Email, password, and primary name are required' },
         { status: 400 }
       );
     }
@@ -34,6 +38,10 @@ export async function POST(request: NextRequest) {
       password: hashPassword(password),
       firstName,
       lastName,
+      aadharNumber,
+      phoneNumber,
+      address,
+      accountType,
       role: 'user',
     });
 

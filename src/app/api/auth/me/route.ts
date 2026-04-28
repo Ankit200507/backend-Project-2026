@@ -19,11 +19,14 @@ export async function GET(request: NextRequest) {
 
     await connect();
     const user = await User.findById(session.sub)
-      .select('email firstName lastName role')
-      .lean<LeanUser | null>();
+      .select('email firstName lastName role aadharNumber phoneNumber address accountType')
+      .lean();
 
     if (!user) return unauthorizedResponse();
-    return NextResponse.json({ success: true, data: toAuthUser(user) });
+    
+    // We pass the raw user directly or expand toAuthUser to handle these
+    // But since the Profile page uses data directly from /api/auth/me, we can just return the user object.
+    return NextResponse.json({ success: true, data: user });
   } catch (error) {
     console.error('Me endpoint error:', error);
     return NextResponse.json(
